@@ -1,0 +1,5 @@
+- Image preview is not loaded in the FTP browsing mode (synchronization issue?)
+- When trying to navigate from the root directory up in the FTP mode (not possible to do) and extra forward slash
+appear in the path that is displayed in the title of the application
+- After the recent changes the scrollbar is not shown in the text preview mode and the whole of text cannot be viewed, only
+a fragment

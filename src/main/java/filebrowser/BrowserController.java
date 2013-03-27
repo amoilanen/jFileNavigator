@@ -138,8 +138,7 @@ public class BrowserController {
         
         public void actionPerformed(ActionEvent e) {
             final String pathToBrowse = (String) JOptionPane.showInputDialog(view.getFrame(),
-                    "Browsing local file system, FTP directories and archives is supported",
-                    "Select destination to browse", JOptionPane.PLAIN_MESSAGE);
+                    Localization.BROWSE_DIALOG_MESSAGE, Localization.BROWSE_DIALOG_TITLE, JOptionPane.PLAIN_MESSAGE);
 
             //Creating entry in a separate thread as it can fail and be slow
             SwingWorker<Entry, Object> entryCreator = new SwingWorker<Entry, Object>() {
@@ -162,8 +161,8 @@ public class BrowserController {
 
                     if ((null == selectedEntry) || !selectedEntry.isDirectory()) {
                         JOptionPane.showMessageDialog(view.getFrame(),
-                                "The selected location is not a directory or does not exists",
-                                "Cannot open location", JOptionPane.ERROR_MESSAGE);
+                                Localization.NO_ROOT_DIALOG_MESSAGE, Localization.NO_ROOT_DIALOG_TITLE,
+                                JOptionPane.ERROR_MESSAGE);
                     }
                     navigateToEntry(selectedEntry);
                 }

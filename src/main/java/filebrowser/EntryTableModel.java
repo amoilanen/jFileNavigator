@@ -16,8 +16,8 @@ import filebrowser.entries.ParentEntry;
 public class EntryTableModel extends AbstractTableModel {
     
     enum EntryType {
-        DIRECTORY("Dir"),
-        FILE("File");
+        DIRECTORY(Localization.DIRECTORY_ENTRY_DESCRIPTION),
+        FILE(Localization.FILE_ENTRY_DESCRIPTION);
         
         private final String description;
         
@@ -27,9 +27,9 @@ public class EntryTableModel extends AbstractTableModel {
     }
     
     private final String[] COLUMNS = {
-        "Type",
-        "Name",
-        "Last Modified"
+        Localization.TYPE_COLUMN_LABEL,
+        Localization.NAME_COLUMN_LABEL,
+        Localization.LAST_MODIFIED_COLUMN_LABEL
     };
     
     private Entry root;

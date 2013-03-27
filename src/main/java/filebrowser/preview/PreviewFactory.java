@@ -15,13 +15,13 @@ public class PreviewFactory {
         
         if (lastDotIndex >= 0 && lastDotIndex <= entryName.length() - 2) {
             entryExtension = entryName.substring(lastDotIndex + 1).toLowerCase();
-        };
+        }
 
         if (TextPreview.acceptsEntryExtension(entryExtension)) {
             return new TextPreview(view, view.getTextPreviewScrollPane(), view.getTextPreview(), entry);
         } else if (ImagePreview.acceptsEntryExtension(entryExtension)) {
             return new ImagePreview(view, view.getImagePreview(), entry);
-        };
+        }
         return new EmptyPreview(view, view.getNoPreviewLabel());
     }
 }

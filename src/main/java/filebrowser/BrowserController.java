@@ -6,12 +6,9 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowEvent;
+import java.util.concurrent.ExecutionException;
 
-import javax.swing.AbstractAction;
-import javax.swing.JComponent;
-import javax.swing.JFrame;
-import javax.swing.JOptionPane;
-import javax.swing.KeyStroke;
+import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
@@ -30,17 +27,17 @@ public class BrowserController {
     
     public BrowserController(PreviewFactory previewFactory) {
         this.previewFactory = previewFactory;
-    };
+    }
     
     private Entry getSelectedEntry() {
         int selectedIndex = view.getFileTable().getSelectionModel().getLeadSelectionIndex();
-        int rowCount = ((EntryTableModel) view.getFileTable().getModel()).getRowCount();
+        int rowCount = view.getFileTable().getModel().getRowCount();
         
         if (selectedIndex >= 0 && selectedIndex < rowCount) {
             int modelRowIndex = view.getFileTable().convertRowIndexToModel(selectedIndex);
 
             return ((EntryTableModel)view.getFileTable().getModel()).getEntry(modelRowIndex);
-        };
+        }
         return null;
     }
 
@@ -52,7 +49,7 @@ public class BrowserController {
             ((EntryTableModel) view.getFileTable().getModel()).setRoot(navigationTarget);
             view.getFrame().setTitle(navigationTarget.getFullPath());
         }
-    };
+    }
     
     private void previewEntry(Entry entry) {
         Preview preview = previewFactory.createPreview(view, entry);
@@ -77,7 +74,7 @@ public class BrowserController {
                     if ((null != selectedEntry) && (currentEntry != selectedEntry)) {
                         currentEntry = selectedEntry;
                         previewEntry(selectedEntry);
-                    };
+                    }
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -88,11 +85,11 @@ public class BrowserController {
         view.getFileTable().getActionMap().put("Enter", new AbstractAction() {
             
             public void actionPerformed(ActionEvent event) {
-                Entry selectedEntry = getSelectedEntry();
+            Entry selectedEntry = getSelectedEntry();
                 
-                if (null != selectedEntry) {                    
-                    navigateToEntry(getSelectedEntry());
-                };
+            if (null != selectedEntry) {
+               navigateToEntry(getSelectedEntry());
+            }
             }
         });
         view.getFileTable().addMouseListener(new MouseAdapter() {
@@ -102,7 +99,7 @@ public class BrowserController {
                     
                     if (null != selectedEntry) {                    
                         navigateToEntry(getSelectedEntry());
-                    };
+                    }
                 }
             }
         });        
@@ -111,7 +108,7 @@ public class BrowserController {
         view.getExitMenuItem().setAction(new ExitAction());
         
         return view.getFrame();
-    };
+    }
 
     @SuppressWarnings("serial")
     public class ExitAction extends AbstractAction {
@@ -140,17 +137,38 @@ public class BrowserController {
         }
         
         public void actionPerformed(ActionEvent e) {
-            String pathToBrowse = (String) JOptionPane.showInputDialog(view.getFrame(),
+            final String pathToBrowse = (String) JOptionPane.showInputDialog(view.getFrame(),
                     "Browsing local file system, FTP directories and archives is supported",
                     "Select destination to browse", JOptionPane.PLAIN_MESSAGE);
-            Entry selectedEntry = EntryFactory.create(pathToBrowse);
-            
-            if (!selectedEntry.isDirectory()) {
-                JOptionPane.showMessageDialog(view.getFrame(), 
-                    "The selected location is not a directory or does not exists", 
-                    "Cannot open location", JOptionPane.ERROR_MESSAGE);
+
+            //Creating entry in a separate thread as it can fail and be slow
+            SwingWorker<Entry, Object> entryCreator = new SwingWorker<Entry, Object>() {
+
+                @Override
+                public Entry doInBackground() {
+                    return EntryFactory.create(pathToBrowse);
+                }
+
+                @Override
+                protected void done() {
+                    Entry selectedEntry = null;
+                    try {
+                        selectedEntry = get();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    } catch (ExecutionException e) {
+                        e.printStackTrace();
+                    }
+
+                    if ((null == selectedEntry) || !selectedEntry.isDirectory()) {
+                        JOptionPane.showMessageDialog(view.getFrame(),
+                                "The selected location is not a directory or does not exists",
+                                "Cannot open location", JOptionPane.ERROR_MESSAGE);
+                    }
+                    navigateToEntry(selectedEntry);
+                }
             };
-            navigateToEntry(selectedEntry);
+            entryCreator.execute();
         }
     }
 }

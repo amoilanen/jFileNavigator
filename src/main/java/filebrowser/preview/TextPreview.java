@@ -49,7 +49,7 @@ public class TextPreview implements Preview {
                     return new String(entry.readContent(), DEFAULT_ENCODING);
                 } catch (UnsupportedEncodingException e) {
                     e.printStackTrace();
-                };
+                }
                 return "";
             }
 

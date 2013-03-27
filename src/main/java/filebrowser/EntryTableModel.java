@@ -69,7 +69,7 @@ public class EntryTableModel extends AbstractTableModel {
         };
       
         entriesLoader.execute();
-    };
+    }
     
     public Object getValueAt(int row, int column) {
         Entry entry = entries.get(row);

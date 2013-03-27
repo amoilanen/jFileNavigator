@@ -27,11 +27,13 @@ public class FileSystemEntry implements Entry {
     public List<Entry> listEntries() {
         File[] children = file.listFiles();
         List<Entry> entries = new ArrayList<Entry>();
-        
-        for (File child : children) {
-            Entry childEntry = EntryFactory.create(child.getAbsolutePath(), this);
 
-            entries.add(childEntry);
+        if (children != null) {
+            for (File child : children) {
+                Entry childEntry = EntryFactory.create(child.getAbsolutePath(), this);
+
+                entries.add(childEntry);
+            }
         }
         return entries;
     }

@@ -33,7 +33,7 @@ public class FTPEntry implements Entry {
     }
     
     public List<Entry> listEntries() throws FileBrowserException {
-        FTPFile[] children = new FTPFile[]{};
+        FTPFile[] children;
         try {
             children = client.listFiles(path);
         } catch (IOException e) {

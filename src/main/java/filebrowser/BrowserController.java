@@ -158,7 +158,7 @@ public class BrowserController implements ExceptionHandler {
         }
         
         public void actionPerformed(ActionEvent e) {
-            final String pathToBrowse = (String) JOptionPane.showInputDialog(view.getFrame(),
+            final String pathToBrowse = JOptionPane.showInputDialog(view.getFrame(),
                     Localization.BROWSE_DIALOG_MESSAGE, Localization.BROWSE_DIALOG_TITLE, JOptionPane.PLAIN_MESSAGE);
 
             //Creating entry in a separate thread as it can fail and be slow

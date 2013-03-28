@@ -89,7 +89,7 @@ public class EntryFactory {
     }
     
     private static Entry createZippedEntry(File file, String entryPath, Entry parentEntry) throws FileBrowserException {
-        ZipFile zipFile = null;
+        ZipFile zipFile;
         try {
             zipFile = new ZipFile(entryPath);
         } catch (IOException e) {

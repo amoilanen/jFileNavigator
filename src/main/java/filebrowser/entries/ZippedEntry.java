@@ -50,7 +50,7 @@ public class ZippedEntry implements Entry {
         Enumeration<ZipEntry> enumeration = (Enumeration<ZipEntry>) zipFile.entries();
         
         while (enumeration.hasMoreElements()) {
-            ZipEntry zipEntry = (ZipEntry) enumeration.nextElement();
+            ZipEntry zipEntry = enumeration.nextElement();
             String zipEntryName = zipEntry.getName();
           
             if (zipEntryName.startsWith(fullPathInsideZipFile)) {

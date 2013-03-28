@@ -3,3 +3,4 @@
 appear in the path that is displayed in the title of the application
 - After the recent changes the scrollbar is not shown in the text preview mode and the whole of text cannot be viewed, only
 a fragment
+- After navigating back and force the directory structure sometimes an extra entry appear in the file list on the first position with an empty name

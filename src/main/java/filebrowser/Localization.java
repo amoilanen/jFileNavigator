@@ -29,4 +29,14 @@ public class Localization {
     public static final String NO_ROOT_DIALOG_MESSAGE = "The selected location is not a directory or does not exists";
 
     public static final String NO_ROOT_DIALOG_TITLE = "Cannot open location";
+    
+    public static final String ERROR_LOADING_ENTRIES = "Error! Cannot load entries";
+    
+    public static final String ERROR_CANNOT_CREATE_ENTRY = "Error! Cannot create entry";
+
+    public static final String ERROR_CANNOT_READ_ENTRY_CONTENT = "Error! Cannot read entry content";
+
+    public static final String ERROR_CANNOT_READ_CHILD_ENTRIES_LIST = "Error! Cannot read the list of child entries";
+
+    public static final String ERROR_CANNOT_SELECT_ENTRY = "Error! Problems while trying to select an entry";
 }

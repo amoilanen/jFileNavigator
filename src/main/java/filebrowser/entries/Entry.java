@@ -4,9 +4,11 @@ import java.io.InputStream;
 import java.util.Date;
 import java.util.List;
 
+import filebrowser.FileBrowserException;
+
 public interface Entry {
     
-    List<Entry> listEntries();
+    List<Entry> listEntries() throws FileBrowserException;
     
     Entry getParentEntry();
     
@@ -22,7 +24,7 @@ public interface Entry {
     
     boolean isNavigationPossible();
     
-    byte[] readContent();
+    byte[] readContent() throws FileBrowserException;
     
-    InputStream getInputStream();
+    InputStream getInputStream() throws FileBrowserException;
 }

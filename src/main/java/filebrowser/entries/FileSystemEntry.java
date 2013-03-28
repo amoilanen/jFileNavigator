@@ -11,6 +11,9 @@ import java.util.List;
 
 import org.apache.commons.io.IOUtils;
 
+import filebrowser.FileBrowserException;
+import filebrowser.Localization;
+
 public class FileSystemEntry implements Entry {
     
     private final File file;
@@ -24,7 +27,7 @@ public class FileSystemEntry implements Entry {
         this.file = new File(file.getAbsolutePath());
     }
     
-    public List<Entry> listEntries() {
+    public List<Entry> listEntries() throws FileBrowserException {
         File[] children = file.listFiles();
         List<Entry> entries = new ArrayList<Entry>();
 
@@ -68,26 +71,24 @@ public class FileSystemEntry implements Entry {
         return isDirectory();
     }
     
-    public byte[] readContent() {
+    public byte[] readContent() throws FileBrowserException {
         InputStream inputStream = null;
         
         try {
             inputStream = new FileInputStream(file);
             return IOUtils.toByteArray(inputStream);
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new FileBrowserException(Localization.ERROR_CANNOT_READ_ENTRY_CONTENT, e);
         } finally {
             IOUtils.closeQuietly(inputStream);
         }
-        return null;
     }
 
-    public InputStream getInputStream() {
+    public InputStream getInputStream() throws FileBrowserException  {
         try {
             return new FileInputStream(file);
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
+            throw new FileBrowserException(Localization.ERROR_CANNOT_READ_ENTRY_CONTENT, e);
         }
-        return null;
     }
 }

@@ -27,6 +27,8 @@ import filebrowser.entries.Entry;
 import filebrowser.entries.FileSystemEntry;
 
 public class BrowserView implements PreviewView {
+
+    private final ExceptionHandler exceptionHandler;
     
     private JFrame frame;
 
@@ -48,7 +50,8 @@ public class BrowserView implements PreviewView {
 
     private JMenuItem exitMenuItem;
     
-    public BrowserView() {
+    public BrowserView(ExceptionHandler exceptionHandler) {
+        this.exceptionHandler = exceptionHandler;
     }
     
     public BrowserView build() {
@@ -94,7 +97,7 @@ public class BrowserView implements PreviewView {
         container.setBorder(BorderFactory.createLineBorder(Color.gray));
         container.setPreferredSize(new Dimension(400, 590));
                 
-        EntryTableModel fileTableModel = new EntryTableModel();
+        EntryTableModel fileTableModel = new EntryTableModel(exceptionHandler);
         
         table = new JTable();
         table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -182,6 +185,10 @@ public class BrowserView implements PreviewView {
     public void setErrorStatus(String text) {
         setStatus(text);
         statusLabel.setForeground(Color.RED);
+    }
+
+    public void clearStatus() {
+        setStatus("");
     }
 
     public void setStatus(String text) {

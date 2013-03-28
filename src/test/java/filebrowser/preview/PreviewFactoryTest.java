@@ -17,6 +17,7 @@ import javax.swing.JTextArea;
 import org.junit.Before;
 import org.junit.Test;
 
+import filebrowser.ExceptionHandler;
 import filebrowser.ImagePanel;
 import filebrowser.PreviewView;
 import filebrowser.entries.Entry;
@@ -33,6 +34,8 @@ public class PreviewFactoryTest {
 
     private ImagePanel imagePreview;
 
+    private ExceptionHandler exceptionHandler;
+    
     private PreviewView view;
     
     private PreviewFactory factory;
@@ -41,6 +44,7 @@ public class PreviewFactoryTest {
     public void before() {
         factory = new PreviewFactory();
         view = createMock(PreviewView.class);
+        exceptionHandler = createMock(ExceptionHandler.class);
         
         noPreviewLabel = createMockBuilder(JLabel.class).createMock();
         textPreviewScroll = createMockBuilder(JScrollPane.class).createMock();
@@ -65,7 +69,7 @@ public class PreviewFactoryTest {
         
         replay(entry);
         
-        Preview preview = factory.createPreview(view, entry);
+        Preview preview = factory.createPreview(exceptionHandler, view, entry);
 
         assertTrue("Empty preview is returned for a directory", preview instanceof EmptyPreview);
     }
@@ -83,7 +87,7 @@ public class PreviewFactoryTest {
 
             replay(entry);
 
-            Preview preview = factory.createPreview(view, entry);
+            Preview preview = factory.createPreview(exceptionHandler, view, entry);
 
             assertTrue("Text preview should be created for " + textFile, preview instanceof TextPreview);
         }
@@ -102,7 +106,7 @@ public class PreviewFactoryTest {
 
             replay(entry);
 
-            Preview preview = factory.createPreview(view, entry);
+            Preview preview = factory.createPreview(exceptionHandler, view, entry);
 
             assertTrue("Image preview should be created for " + imageFile, preview instanceof ImagePreview);
         }
@@ -118,7 +122,7 @@ public class PreviewFactoryTest {
         
         replay(entry);
         
-        Preview preview = factory.createPreview(view, entry);
+        Preview preview = factory.createPreview(exceptionHandler, view, entry);
 
         assertTrue("Empty preview is returned for an unknown file", preview instanceof EmptyPreview);
     }

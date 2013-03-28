@@ -4,6 +4,8 @@ import java.io.InputStream;
 import java.util.Date;
 import java.util.List;
 
+import filebrowser.FileBrowserException;
+
 public class ParentEntry implements Entry {
     
     private static final String PARENT_DIR_NAME_LABEL = "..";
@@ -13,7 +15,7 @@ public class ParentEntry implements Entry {
         this.entry = entry;
     }
     
-    public List<Entry> listEntries() {
+    public List<Entry> listEntries() throws FileBrowserException {
         return entry.listEntries();
     }
 
@@ -41,11 +43,11 @@ public class ParentEntry implements Entry {
         return entry.getFullPath();
     }
 
-    public byte[] readContent() {
+    public byte[] readContent() throws FileBrowserException {
         return entry.readContent();
     }
 
-    public InputStream getInputStream() {
+    public InputStream getInputStream() throws FileBrowserException {
         return entry.getInputStream();
     }
 

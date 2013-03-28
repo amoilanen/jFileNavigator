@@ -13,6 +13,9 @@ import java.util.zip.ZipFile;
 
 import org.apache.commons.net.ftp.FTPClient;
 
+import filebrowser.FileBrowserException;
+import filebrowser.Localization;
+
 public class EntryFactory {
     
     private static final String FTP_ANONYMOUS_PASSWORD = "";
@@ -66,7 +69,7 @@ public class EntryFactory {
         }
     };
     
-    private static Entry createFTPEntry(String entryPath) {
+    private static Entry createFTPEntry(String entryPath) throws FileBrowserException {
         FTPClient client = new FTPClient();
         URL serverURL;
         try {
@@ -77,23 +80,20 @@ public class EntryFactory {
             
             return new FTPEntry(client, serverURL.getPath(), null);
         } catch (MalformedURLException e) {
-            e.printStackTrace();
-            return NULL_ENTRY;
+            throw new FileBrowserException(Localization.ERROR_CANNOT_CREATE_ENTRY, e);
         } catch (SocketException e) {
-            e.printStackTrace();
-            return NULL_ENTRY;
+            throw new FileBrowserException(Localization.ERROR_CANNOT_CREATE_ENTRY, e);
         } catch (IOException e) {
-            e.printStackTrace();
-            return NULL_ENTRY;
+            throw new FileBrowserException(Localization.ERROR_CANNOT_CREATE_ENTRY, e);
         }
     }
     
-    private static Entry createZippedEntry(File file, String entryPath, Entry parentEntry) {
+    private static Entry createZippedEntry(File file, String entryPath, Entry parentEntry) throws FileBrowserException {
         ZipFile zipFile = null;
         try {
             zipFile = new ZipFile(entryPath);
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new FileBrowserException(Localization.ERROR_CANNOT_CREATE_ENTRY, e);
         }
         ZippedEntry zippedEntry = new ZippedEntry(zipFile, FTP_ANONYMOUS_PASSWORD, file.getName(), new Date(file.lastModified()), null, parentEntry);
         
@@ -101,7 +101,7 @@ public class EntryFactory {
         return zippedEntry;
     }
     
-    public static Entry createFileEntry(String entryPath, Entry parentEntry) {
+    public static Entry createFileEntry(String entryPath, Entry parentEntry) throws FileBrowserException {
         File file = new File(entryPath);
         
         if (file.exists()) {
@@ -114,13 +114,13 @@ public class EntryFactory {
         return NULL_ENTRY;
     }
     
-    public static Entry create(String entryPath, Entry parentEntry) {
+    public static Entry create(String entryPath, Entry parentEntry) throws FileBrowserException {
         return entryPath.startsWith(FTP_ENTRY_PREFIX) 
             ? createFTPEntry(entryPath)
             : createFileEntry(entryPath, parentEntry);
     }
     
-    public static Entry create(String entryPath) {
+    public static Entry create(String entryPath) throws FileBrowserException {
         return create(entryPath, null);
     }
 }

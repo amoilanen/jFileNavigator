@@ -1,11 +1,12 @@
 package filebrowser.preview;
 
+import filebrowser.ExceptionHandler;
 import filebrowser.PreviewView;
 import filebrowser.entries.Entry;
 
 public class PreviewFactory {
     
-    public Preview createPreview(PreviewView view, Entry entry) {
+    public Preview createPreview(ExceptionHandler exceptionHandler, PreviewView view, Entry entry) {
         if (entry.isDirectory()) {
             return new EmptyPreview(view, view.getNoPreviewLabel());
         }
@@ -18,9 +19,9 @@ public class PreviewFactory {
         }
 
         if (TextPreview.acceptsEntryExtension(entryExtension)) {
-            return new TextPreview(view, view.getTextPreviewScrollPane(), view.getTextPreview(), entry);
+            return new TextPreview(exceptionHandler, view, view.getTextPreviewScrollPane(), view.getTextPreview(), entry);
         } else if (ImagePreview.acceptsEntryExtension(entryExtension)) {
-            return new ImagePreview(view, view.getImagePreview(), entry);
+            return new ImagePreview(exceptionHandler, view, view.getImagePreview(), entry);
         }
         return new EmptyPreview(view, view.getNoPreviewLabel());
     }

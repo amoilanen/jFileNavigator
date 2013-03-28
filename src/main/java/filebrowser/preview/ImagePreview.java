@@ -11,7 +11,10 @@ import java.util.concurrent.ExecutionException;
 import javax.imageio.ImageIO;
 import javax.swing.SwingWorker;
 
+import filebrowser.ExceptionHandler;
+import filebrowser.FileBrowserException;
 import filebrowser.ImagePanel;
+import filebrowser.Localization;
 import filebrowser.PreviewView;
 import filebrowser.entries.Entry;
 
@@ -21,13 +24,16 @@ public class ImagePreview implements Preview {
     
     public static final Set<String> ACCEPTED_EXTENSIONS = new HashSet<String>(ACCEPTED_EXTENSIONS_LIST);
     
+    private final ExceptionHandler exceptionHandler;
+    
     private final PreviewView view;
     
     private final ImagePanel panel;
     
     private final Entry entry;
     
-    public ImagePreview(PreviewView view, ImagePanel panel, Entry entry) {
+    public ImagePreview(ExceptionHandler exceptionHandler, PreviewView view, ImagePanel panel, Entry entry) {
+        this.exceptionHandler = exceptionHandler;
         this.view = view;
         this.panel = panel;
         this.entry = entry;
@@ -39,13 +45,12 @@ public class ImagePreview implements Preview {
         SwingWorker<BufferedImage, Object> previewLoader = new SwingWorker<BufferedImage, Object>() {
 
             @Override
-            public BufferedImage doInBackground() {
+            public BufferedImage doInBackground() throws FileBrowserException {
                 try {
-                    return ImageIO.read(entry.getInputStream());
+                    return ImageIO.read(entry.getInputStream());                    
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    throw new FileBrowserException(Localization.ERROR_CANNOT_READ_ENTRY_CONTENT, e);
                 }
-                return null;
             }
 
             @Override
@@ -55,9 +60,11 @@ public class ImagePreview implements Preview {
                 try {
                     panel.setImage(get());
                 } catch (InterruptedException e) {
-                    e.printStackTrace();
+                    exceptionHandler.handleException(e.getCause().getMessage(), e);                    
                 } catch (ExecutionException e) {
-                    e.printStackTrace();
+                    exceptionHandler.handleException(e.getCause().getMessage(), e);                    
+                } catch (Exception e) {
+                    exceptionHandler.handleException(e.getCause().getMessage(), e);                    
                 }
             }
         };

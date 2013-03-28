@@ -12,6 +12,9 @@ import java.util.zip.ZipFile;
 
 import org.apache.commons.io.IOUtils;
 
+import filebrowser.FileBrowserException;
+import filebrowser.Localization;
+
 public class ZippedEntry implements Entry {
     
     private final ZipFile zipFile;
@@ -42,7 +45,7 @@ public class ZippedEntry implements Entry {
     }
     
     @SuppressWarnings("unchecked")
-    public List<Entry> listEntries() {
+    public List<Entry> listEntries() throws FileBrowserException {
         List<Entry> children = new ArrayList<Entry>();
         Enumeration<ZipEntry> enumeration = (Enumeration<ZipEntry>) zipFile.entries();
         
@@ -88,25 +91,23 @@ public class ZippedEntry implements Entry {
         return zipFile.getName() + ":" + fullPathInsideZipFile;
     }
 
-    public byte[] readContent() {
-        try {
-            return IOUtils.toByteArray(getInputStream());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
     public boolean isNavigationPossible() {
         return isNavigationPossible || isDirectory();
     }
     
-    public InputStream getInputStream() {
+    public byte[] readContent() throws FileBrowserException {
+        try {
+            return IOUtils.toByteArray(getInputStream());
+        } catch (IOException e) {
+            throw new FileBrowserException(Localization.ERROR_CANNOT_READ_ENTRY_CONTENT, e);
+        }
+    }
+    
+    public InputStream getInputStream() throws FileBrowserException {
         try {
             return new BufferedInputStream(zipFile.getInputStream(zipEntry));
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new FileBrowserException(Localization.ERROR_CANNOT_READ_ENTRY_CONTENT, e);
         }
-        return null;
     }
 }

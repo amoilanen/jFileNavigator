@@ -8,16 +8,25 @@ import java.awt.event.MouseEvent;
 import java.awt.event.WindowEvent;
 import java.util.concurrent.ExecutionException;
 
-import javax.swing.*;
+import javax.swing.AbstractAction;
+import javax.swing.JComponent;
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
+import javax.swing.KeyStroke;
+import javax.swing.SwingWorker;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+
+import org.apache.log4j.Logger;
 
 import filebrowser.entries.Entry;
 import filebrowser.entries.EntryFactory;
 import filebrowser.preview.Preview;
 import filebrowser.preview.PreviewFactory;
 
-public class BrowserController {
+public class BrowserController implements ExceptionHandler {
+
+    private static final Logger logger = Logger.getLogger(BrowserController.class);
     
     private BrowserView view;
     
@@ -49,17 +58,21 @@ public class BrowserController {
             ((EntryTableModel) view.getFileTable().getModel()).setRoot(navigationTarget);
             view.getFrame().setTitle(navigationTarget.getFullPath());
         }
+        view.clearStatus();
     }
     
     private void previewEntry(Entry entry) {
-        Preview preview = previewFactory.createPreview(view, entry);
+        Preview preview = previewFactory.createPreview(this, view, entry);
         preview.show();
         view.getPreviewContainer().repaint();
+        view.clearStatus();
     }
     
     @SuppressWarnings("serial")
     public JFrame createGUI() {
-        view = new BrowserView().build();
+        final ExceptionHandler exceptionHandler = this;
+        
+        view = new BrowserView(this).build();
 
         ListSelectionListener listSelectionListener = new ListSelectionListener() {
 
@@ -76,7 +89,7 @@ public class BrowserController {
                         previewEntry(selectedEntry);
                     }
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    exceptionHandler.handleException(Localization.ERROR_CANNOT_SELECT_ENTRY, e);
                 }
             }
         };
@@ -104,12 +117,17 @@ public class BrowserController {
             }
         });        
         
-        view.getSetRootMenuItem().setAction(new SetRootAction());
+        view.getSetRootMenuItem().setAction(new SetRootAction(this));
         view.getExitMenuItem().setAction(new ExitAction());
         
         return view.getFrame();
     }
 
+    public void handleException(String message, Exception error) {
+        logger.error(message, error);
+        view.setErrorStatus(message);
+    }
+    
     @SuppressWarnings("serial")
     public class ExitAction extends AbstractAction {
 
@@ -131,8 +149,11 @@ public class BrowserController {
     @SuppressWarnings("serial")
     public class SetRootAction extends AbstractAction {
 
-        public SetRootAction() {
+        private final ExceptionHandler exceptionHandler;
+        
+        public SetRootAction(ExceptionHandler exceptionHandler) {
             super(Localization.SETROOT_MENUITEM_LABEL);
+            this.exceptionHandler = exceptionHandler;
             putValue(MNEMONIC_KEY, new Integer(KeyEvent.VK_O));
         }
         
@@ -144,7 +165,7 @@ public class BrowserController {
             SwingWorker<Entry, Object> entryCreator = new SwingWorker<Entry, Object>() {
 
                 @Override
-                public Entry doInBackground() {
+                public Entry doInBackground() throws FileBrowserException {
                     return EntryFactory.create(pathToBrowse);
                 }
 
@@ -154,9 +175,11 @@ public class BrowserController {
                     try {
                         selectedEntry = get();
                     } catch (InterruptedException e) {
-                        e.printStackTrace();
+                        exceptionHandler.handleException(e.getCause().getMessage(), e);
                     } catch (ExecutionException e) {
-                        e.printStackTrace();
+                        exceptionHandler.handleException(e.getCause().getMessage(), e);
+                    } catch (Exception e) {
+                        exceptionHandler.handleException(e.getCause().getMessage(), e);                    
                     }
 
                     if ((null == selectedEntry) || !selectedEntry.isDirectory()) {
@@ -164,7 +187,9 @@ public class BrowserController {
                                 Localization.NO_ROOT_DIALOG_MESSAGE, Localization.NO_ROOT_DIALOG_TITLE,
                                 JOptionPane.ERROR_MESSAGE);
                     }
-                    navigateToEntry(selectedEntry);
+                    if (null != selectedEntry) {
+                        navigateToEntry(selectedEntry);
+                    }
                 }
             };
             entryCreator.execute();

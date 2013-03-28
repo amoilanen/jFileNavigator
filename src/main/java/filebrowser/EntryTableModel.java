@@ -32,11 +32,14 @@ public class EntryTableModel extends AbstractTableModel {
         Localization.LAST_MODIFIED_COLUMN_LABEL
     };
     
+    private final ExceptionHandler exceptionHandler;
+    
     private Entry root;
     
     private List<Entry> entries;
 
-    public EntryTableModel() {
+    public EntryTableModel(ExceptionHandler exceptionHandler) {
+        this.exceptionHandler = exceptionHandler;
         entries = Collections.emptyList();
     }
 
@@ -46,7 +49,7 @@ public class EntryTableModel extends AbstractTableModel {
         SwingWorker<List<Entry>, Object> entriesLoader = new SwingWorker<List<Entry>, Object>() {
 
             @Override
-            public List<Entry> doInBackground() {
+            public List<Entry> doInBackground() throws FileBrowserException {
                 List<Entry> entries = new ArrayList<Entry>();
                 entries.add(new ParentEntry(root));
                 entries.addAll(root.listEntries());
@@ -56,18 +59,20 @@ public class EntryTableModel extends AbstractTableModel {
             @Override
             protected void done() {
                 try {
-                    entries = get();
+                    entries = get();                    
                 } catch (InterruptedException e) {
-                    e.printStackTrace();
+                    exceptionHandler.handleException(Localization.ERROR_LOADING_ENTRIES, e);                    
                     entries = Collections.emptyList();
                 } catch (ExecutionException e) {
-                    e.printStackTrace();
+                    exceptionHandler.handleException(Localization.ERROR_LOADING_ENTRIES, e);
+                    entries = Collections.emptyList();
+                } catch (Exception e) {
+                    exceptionHandler.handleException(e.getCause().getMessage(), e);                    
                     entries = Collections.emptyList();
                 }
                 fireTableDataChanged();
             }
         };
-      
         entriesLoader.execute();
     }
     

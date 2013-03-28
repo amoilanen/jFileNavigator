@@ -11,6 +11,9 @@ import java.util.List;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPFile;
 
+import filebrowser.FileBrowserException;
+import filebrowser.Localization;
+
 public class FTPEntry implements Entry {
     
     private final FTPClient client;
@@ -29,12 +32,12 @@ public class FTPEntry implements Entry {
         this.file = file;
     }
     
-    public List<Entry> listEntries() {
+    public List<Entry> listEntries() throws FileBrowserException {
         FTPFile[] children = new FTPFile[]{};
         try {
             children = client.listFiles(path);
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new FileBrowserException(Localization.ERROR_CANNOT_READ_CHILD_ENTRIES_LIST, e);
         }
         List<Entry> entries = new ArrayList<Entry>();
         
@@ -90,18 +93,18 @@ public class FTPEntry implements Entry {
         return isDirectory();
     }
     
-    public byte[] readContent() {
+    public byte[] readContent() throws FileBrowserException {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         
         try {
             client.retrieveFile(path, out);
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new FileBrowserException(Localization.ERROR_CANNOT_READ_ENTRY_CONTENT, e);
         }
         return out.toByteArray();
     }
 
-    public InputStream getInputStream() {
+    public InputStream getInputStream() throws FileBrowserException {
         return new ByteArrayInputStream(readContent());
     }
 }

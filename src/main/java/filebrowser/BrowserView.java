@@ -3,6 +3,7 @@ package filebrowser;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Insets;
 import java.io.File;
 import java.util.Arrays;
 
@@ -20,6 +21,7 @@ import javax.swing.JTextArea;
 import javax.swing.ListSelectionModel;
 import javax.swing.RowSorter;
 import javax.swing.SortOrder;
+import javax.swing.border.EmptyBorder;
 
 import filebrowser.entries.Entry;
 import filebrowser.entries.FileSystemEntry;
@@ -29,6 +31,8 @@ public class BrowserView implements PreviewView {
     private JFrame frame;
 
     private JTable table;
+    
+    private JLabel statusLabel;
     
     private JPanel previewContainer;
     
@@ -53,12 +57,12 @@ public class BrowserView implements PreviewView {
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setResizable(false);
 
-        frame.setPreferredSize(new Dimension(1000, 600));
+        frame.setPreferredSize(new Dimension(1000, 620));
         frame.setJMenuBar(createMenuBar());
-        
-        
+
         frame.add(createFileList(), BorderLayout.WEST);
         frame.add(createPreview(), BorderLayout.EAST);
+        frame.add(createStatusBar(), BorderLayout.SOUTH);
         return this;
     }
     
@@ -87,8 +91,8 @@ public class BrowserView implements PreviewView {
         JPanel container = new JPanel();
         container.setLayout(new BorderLayout());
         
-        container.setBorder(BorderFactory.createLineBorder(Color.black));
-        container.setPreferredSize(new Dimension(400, 600));
+        container.setBorder(BorderFactory.createLineBorder(Color.gray));
+        container.setPreferredSize(new Dimension(400, 590));
                 
         EntryTableModel fileTableModel = new EntryTableModel();
         
@@ -121,7 +125,7 @@ public class BrowserView implements PreviewView {
         
         Dimension containerPreferredSize = container.getPreferredSize();
         
-        tableScroll.setPreferredSize(new Dimension(containerPreferredSize.width, containerPreferredSize.height - 24));
+        tableScroll.setPreferredSize(new Dimension(containerPreferredSize.width, containerPreferredSize.height - 21));
         container.add(tableScroll, BorderLayout.NORTH);
         
         return container;
@@ -131,7 +135,7 @@ public class BrowserView implements PreviewView {
     //BorderLayout has only 4 positions (slots) available, 3 of them are used now
     private JPanel createPreview() {
         previewContainer = new JPanel(new BorderLayout());
-        previewContainer.setBorder(BorderFactory.createLineBorder(Color.black));
+        previewContainer.setBorder(BorderFactory.createLineBorder(Color.gray));
         previewContainer.setPreferredSize(new Dimension(600, 600));
         
         noPreviewLabel = new JLabel();
@@ -159,9 +163,30 @@ public class BrowserView implements PreviewView {
         
         return previewContainer;
     }
-    
+
+    public JPanel createStatusBar() {
+        JPanel container = new JPanel();
+
+        container.setLayout(new BorderLayout());
+        container.setBorder(new EmptyBorder(new Insets(0, 20, 4, 0)));
+        container.setPreferredSize(new Dimension(600, 20));        
+        statusLabel = new JLabel();
+        container.add(statusLabel);
+        return container;
+    }
+
     public JFrame getFrame() {
         return frame;
+    }
+    
+    public void setErrorStatus(String text) {
+        setStatus(text);
+        statusLabel.setForeground(Color.RED);
+    }
+
+    public void setStatus(String text) {
+        statusLabel.setText(text);
+        statusLabel.setForeground(Color.BLACK);
     }
     
     public JPanel getPreviewContainer() {
